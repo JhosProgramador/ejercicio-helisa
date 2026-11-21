@@ -1,6 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { Response } from 'express';
-import { DomainError } from '../../domain/account-errors';
+import { DomainError } from '../../domain/account-errors.js';
 
 const STATUS: Record<string, number> = {
   INVALID_CODE: 400, INVALID_LENGTH: 400, NATURE_REQUIRED: 400, EMPTY_NAME: 400,

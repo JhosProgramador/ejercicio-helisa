@@ -1,4 +1,4 @@
-import { AccountRepository } from '../domain/account.repository';
+import { AccountRepository } from '../domain/account.repository.js';
 
 export interface AccountNode {
   code: string; name: string; level: string; nature: string;

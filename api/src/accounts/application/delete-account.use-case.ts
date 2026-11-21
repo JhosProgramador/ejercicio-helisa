@@ -1,5 +1,5 @@
-import { AccountHasChildrenError, AccountNotFoundError } from '../domain/account-errors';
-import { AccountRepository } from '../domain/account.repository';
+import { AccountHasChildrenError, AccountNotFoundError } from '../domain/account-errors.js';
+import { AccountRepository } from '../domain/account.repository.js';
 
 export class DeleteAccountUseCase {
   constructor(private readonly repo: AccountRepository) {}

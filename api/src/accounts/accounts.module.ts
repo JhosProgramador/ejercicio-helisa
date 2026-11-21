@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { CreateAccountUseCase } from './application/create-account.use-case';
-import { DeleteAccountUseCase } from './application/delete-account.use-case';
-import { GetAccountTreeUseCase } from './application/get-account-tree.use-case';
-import { ACCOUNT_REPOSITORY, AccountRepository } from './domain/account.repository';
-import { InMemoryAccountRepository } from './infrastructure/in-memory-account.repository';
-import { AccountsController } from './infrastructure/http/accounts.controller';
+import { CreateAccountUseCase } from './application/create-account.use-case.js';
+import { DeleteAccountUseCase } from './application/delete-account.use-case.js';
+import { GetAccountTreeUseCase } from './application/get-account-tree.use-case.js';
+import { ACCOUNT_REPOSITORY, AccountRepository } from './domain/account.repository.js';
+import { InMemoryAccountRepository } from './infrastructure/in-memory-account.repository.js';
+import { AccountsController } from './infrastructure/http/accounts.controller.js';
 
 @Module({
   controllers: [AccountsController],

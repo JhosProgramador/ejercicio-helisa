@@ -1,4 +1,4 @@
-import { Account } from './account';
+import { Account } from './account.js';
 
 export interface AccountRepository {
   findByCode(code: string): Promise<Account | null>;

@@ -1,5 +1,5 @@
-import { Account } from '../domain/account';
-import { AccountRepository } from '../domain/account.repository';
+import { Account } from '../domain/account.js';
+import { AccountRepository } from '../domain/account.repository.js';
 
 export class InMemoryAccountRepository implements AccountRepository {
   private readonly store = new Map<string, Account>();

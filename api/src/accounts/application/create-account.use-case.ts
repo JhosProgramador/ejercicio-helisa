@@ -1,6 +1,6 @@
-import { Account, Nature } from '../domain/account';
-import { DuplicateCodeError, ParentNotFoundError } from '../domain/account-errors';
-import { AccountRepository } from '../domain/account.repository';
+import { Account, Nature } from '../domain/account.js';
+import { DuplicateCodeError, ParentNotFoundError } from '../domain/account-errors.js';
+import { AccountRepository } from '../domain/account.repository.js';
 
 export interface CreateAccountInput { code: string; name: string; nature?: Nature }
 

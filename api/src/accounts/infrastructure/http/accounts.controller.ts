@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post, UseFilters } from '@nestjs/common';
-import { CreateAccountUseCase } from '../../application/create-account.use-case';
-import { DeleteAccountUseCase } from '../../application/delete-account.use-case';
-import { GetAccountTreeUseCase } from '../../application/get-account-tree.use-case';
-import { Nature } from '../../domain/account';
-import { DomainErrorFilter } from './domain-error.filter';
+import { CreateAccountUseCase } from '../../application/create-account.use-case.js';
+import { DeleteAccountUseCase } from '../../application/delete-account.use-case.js';
+import { GetAccountTreeUseCase } from '../../application/get-account-tree.use-case.js';
+import { Nature } from '../../domain/account.js';
+import { DomainErrorFilter } from './domain-error.filter.js';
 
 @Controller('accounts')
 @UseFilters(DomainErrorFilter)
