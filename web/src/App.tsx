@@ -1,42 +1,59 @@
-import { useEffect, useState } from 'react'
-import { apiUrl } from './api'
+import { useState } from 'react'
+import { AccountForm } from './features/accounts/components/AccountForm'
+import { AccountTree } from './features/accounts/components/AccountTree'
+import { ConfirmDialog } from './features/accounts/components/ConfirmDialog'
+import { useAccountTree, useDeleteAccount } from './features/accounts/hooks'
+import type { AccountNode } from './features/accounts/types'
 
-type Estado =
-  | { tipo: 'cargando' }
-  | { tipo: 'ok'; mensaje: string }
-  | { tipo: 'error'; mensaje: string }
+export default function App() {
+  const tree = useAccountTree()
+  const remove = useDeleteAccount()
+  const [toDelete, setToDelete] = useState<AccountNode | null>(null)
 
-function App() {
-  const [estado, setEstado] = useState<Estado>({ tipo: 'cargando' })
+  function closeDialog() {
+    setToDelete(null)
+    remove.reset()
+  }
 
-  useEffect(() => {
-    fetch(apiUrl('/'))
-      .then((respuesta) => {
-        if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`)
-        return respuesta.text()
-      })
-      .then((mensaje) => setEstado({ tipo: 'ok', mensaje }))
-      .catch((error: Error) => setEstado({ tipo: 'error', mensaje: error.message }))
-  }, [])
+  function confirmDelete() {
+    if (!toDelete) return
+    remove.mutate(toDelete.code, { onSuccess: closeDialog })
+  }
 
   return (
-    <main>
-      <h1>Arranque de la prueba técnica</h1>
-      <p>
-        Esta pantalla existe solo para comprobar que el frontend le llega a la API.
-        Bórrala y construye lo tuyo.
-      </p>
+    <main className="mx-auto max-w-5xl p-6">
+      <h1 className="mb-6 text-2xl font-semibold">Catálogo de cuentas</h1>
 
-      {estado.tipo === 'cargando' && <p>Consultando la API...</p>}
-      {estado.tipo === 'ok' && <p>La API respondió: {estado.mensaje}</p>}
-      {estado.tipo === 'error' && (
-        <p>
-          No se pudo hablar con la API ({estado.mensaje}). Revisa que esté
-          corriendo en {apiUrl('')}.
-        </p>
+      <div className="grid gap-6 md:grid-cols-[1fr_320px]">
+        <section aria-label="Árbol del catálogo" className="rounded-lg border border-slate-200 p-4">
+          {tree.isPending && <p className="text-sm text-slate-500">Cargando catálogo…</p>}
+          {tree.isError && (
+            <div role="alert" className="rounded bg-red-50 p-3 text-sm text-red-700">
+              <p>{tree.error.message}</p>
+              <button type="button" onClick={() => tree.refetch()} className="mt-2 underline">
+                Reintentar
+              </button>
+            </div>
+          )}
+          {tree.isSuccess && <AccountTree nodes={tree.data} onDelete={setToDelete} />}
+        </section>
+
+        <aside className="rounded-lg border border-slate-200 p-4">
+          <h2 className="mb-3 font-medium">Nueva cuenta</h2>
+          <AccountForm />
+        </aside>
+      </div>
+
+      {toDelete && (
+        <ConfirmDialog
+          title="Eliminar cuenta"
+          message={`¿Eliminar la cuenta ${toDelete.code} — ${toDelete.name}?`}
+          error={remove.error?.message}
+          pending={remove.isPending}
+          onConfirm={confirmDelete}
+          onCancel={closeDialog}
+        />
       )}
     </main>
   )
 }
-
-export default App
