@@ -4,11 +4,12 @@ import type { AccountNode } from '../types'
 interface Props {
   nodes: AccountNode[]
   onDelete: (node: AccountNode) => void
+  onAddChild: (node: AccountNode) => void
 }
 
 const NATURE_LABEL = { DEBIT: 'Débito', CREDIT: 'Crédito' } as const
 
-function NodeRow({ node, onDelete }: { node: AccountNode; onDelete: Props['onDelete'] }) {
+function NodeRow({ node, onDelete, onAddChild }: { node: AccountNode } & Omit<Props, 'nodes'>) {
   const [open, setOpen] = useState(node.level === 'Clase')
   const hasChildren = node.children.length > 0
 
@@ -31,6 +32,19 @@ function NodeRow({ node, onDelete }: { node: AccountNode; onDelete: Props['onDel
         <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-700">
           {NATURE_LABEL[node.nature]}
         </span>
+        {node.code.length < 6 && (
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(true)
+              onAddChild(node)
+            }}
+            aria-label={`Crear hija de ${node.code}`}
+            className="text-xs text-blue-600 hover:underline"
+          >
+            + Hija
+          </button>
+        )}
         <button
           type="button"
           onClick={() => onDelete(node)}
@@ -43,7 +57,7 @@ function NodeRow({ node, onDelete }: { node: AccountNode; onDelete: Props['onDel
       {hasChildren && open && (
         <ul className="ml-5 border-l border-slate-200 pl-2">
           {node.children.map((child) => (
-            <NodeRow key={child.code} node={child} onDelete={onDelete} />
+            <NodeRow key={child.code} node={child} onDelete={onDelete} onAddChild={onAddChild} />
           ))}
         </ul>
       )}
@@ -51,14 +65,14 @@ function NodeRow({ node, onDelete }: { node: AccountNode; onDelete: Props['onDel
   )
 }
 
-export function AccountTree({ nodes, onDelete }: Props) {
+export function AccountTree({ nodes, onDelete, onAddChild }: Props) {
   if (nodes.length === 0) {
     return <p className="text-sm text-slate-500">El catálogo está vacío. Crea una clase para empezar.</p>
   }
   return (
     <ul>
       {nodes.map((n) => (
-        <NodeRow key={n.code} node={n} onDelete={onDelete} />
+        <NodeRow key={n.code} node={n} onDelete={onDelete} onAddChild={onAddChild} />
       ))}
     </ul>
   )

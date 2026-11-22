@@ -58,14 +58,15 @@ export function AccountForm({ initialCode = '' }: { initialCode?: string }) {
       <div>
         <label htmlFor="code" className="text-sm font-medium">Código</label>
         <input
-          id="code"
-          value={code}
-          onChange={(e) => { setCode(e.target.value); clear('code') }}
-          inputMode="numeric"
-          placeholder="Ej: 110505"
-          aria-invalid={!!errorFor('code')}
-          className={inputClass('code')}
-        />
+            id="code"
+            value={code}
+            onChange={(e) => { setCode(e.target.value); clear('code') }}
+            inputMode="numeric"
+            placeholder="Ej: 110505"
+            autoFocus={initialCode !== ''}
+            aria-invalid={!!errorFor('code')}
+            className={inputClass('code')}
+            />
         {errorFor('code') && <p role="alert" className="mt-1 text-xs text-red-600">{errorFor('code')}</p>}
       </div>
 

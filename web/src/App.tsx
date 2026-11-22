@@ -9,6 +9,7 @@ export default function App() {
   const tree = useAccountTree()
   const remove = useDeleteAccount()
   const [toDelete, setToDelete] = useState<AccountNode | null>(null)
+  const [prefill, setPrefill] = useState({ code: '', key: 0 })
 
   function closeDialog() {
     setToDelete(null)
@@ -35,12 +36,18 @@ export default function App() {
               </button>
             </div>
           )}
-          {tree.isSuccess && <AccountTree nodes={tree.data} onDelete={setToDelete} />}
+          {tree.isSuccess && (
+            <AccountTree
+              nodes={tree.data}
+              onDelete={setToDelete}
+              onAddChild={(n) => setPrefill((p) => ({ code: n.code, key: p.key + 1 }))}
+            />
+          )}
         </section>
 
         <aside className="rounded-lg border border-slate-200 p-4">
           <h2 className="mb-3 font-medium">Nueva cuenta</h2>
-          <AccountForm />
+          <AccountForm key={prefill.key} initialCode={prefill.code} />
         </aside>
       </div>
 
