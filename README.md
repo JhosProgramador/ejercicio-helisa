@@ -1,47 +1,68 @@
-# Arranque de la prueba técnica full-stack
+# Catálogo de cuentas — Aravia
 
-Backend y frontend listos para correr, ya conectados entre sí. Es el punto de partida de la prueba, para que no gastes tiempo en instalar y configurar.
-
-| Carpeta | Qué hay | Puerto |
-|---------|---------|:------:|
-| `api/` | NestJS con TypeScript, con CORS habilitado hacia el front | 3000 |
-| `web/` | React con Vite y TypeScript | 5173 |
-
-Trae **solo lo que generan los CLI de Nest y de Vite**. No hay estructura de capas, ni entidades, ni interfaces de repositorio, ni librería de componentes, ni manejo de estado. Esas decisiones son tuyas y son parte de lo que se evalúa, así que cuéntanos en voz alta por qué las tomas. Si quieres reorganizar las carpetas, hazlo y explica por qué.
-
-## Requisitos
-
-- **Node 22** (está en `.nvmrc`, con `nvm use` queda listo).
-- **npm 10 o superior.** Con npm 9.2 la instalación falla. Revisa con `npm -v` antes de empezar.
+Módulo para administrar el catálogo de cuentas: API en NestJS y pantalla en React.
 
 ## Cómo correrlo
 
-```bash
-npm install     # instala la raíz, api/ y web/
-npm run dev     # levanta los dos a la vez
-```
+    npm install
+    npm install --prefix api
+    npm install --prefix web
+    npm run dev
 
-Abre http://localhost:5173. Si ves *La API respondió: Hello World!*, el frontend está hablando con el backend y puedes empezar.
+- API: http://localhost:3000
+- Web: http://localhost:5173
 
-Esa pantalla existe solo para comprobar la conexión. Bórrala y construye lo tuyo.
+## Qué hace
 
-## Scripts
+- Crear cuenta (valida formato numérico, longitud 1/2/4/6, duplicado y padre existente).
+- Consultar el catálogo como árbol anidado.
+- Eliminar cuenta (rechaza si tiene hijas).
+- Pantalla con árbol expandible, formulario con validación local y errores de la API junto a cada campo, eliminación con confirmación, y estados de carga y error.
+- Opcionales: nivel y naturaleza visibles en el árbol; crear hija con código prellenado.
 
-| Script | Qué hace |
-|--------|----------|
-| `npm run dev` | Levanta la API y el front juntos, en modo watch |
-| `npm run dev:api` | Solo la API |
-| `npm run dev:web` | Solo el front |
-| `npm run build` | Compila los dos |
-| `npm test` | Corre las pruebas de la API con Vitest |
-| `npm run lint` | Revisa los dos con oxlint |
+## Backend: Clean Architecture
 
-## Configuración
+    api/src/accounts/
+    ├── domain/          # Account, errores de dominio, interfaz AccountRepository
+    ├── application/     # casos de uso: crear, consultar árbol, eliminar
+    └── infrastructure/  # repositorio en memoria, controller HTTP, filtro de errores
 
-El front lee la URL de la API de `VITE_API_URL`. Si no defines la variable, usa `http://localhost:3000`, así que no tienes que configurar nada para empezar. El ejemplo está en [`web/.env.example`](./web/.env.example).
+Las dependencias apuntan hacia adentro. `domain` y `application` no importan nada de NestJS
+(verificable con `grep "@nestjs"`). La interfaz del repositorio la define el dominio y la
+infraestructura la implementa. Los casos de uso son clases planas; `accounts.module.ts` es el
+único lugar que las construye con Nest.
 
-La API acepta peticiones del origen que diga `WEB_ORIGIN`, y por defecto `http://localhost:5173`. Si cambias el puerto del front, cambia esa variable.
+Los errores de dominio llevan `code` y `field`. Un filtro los traduce a HTTP
+(400, 404, 409, 422) con el formato `{ code, message, field }`, que el frontend usa para
+pintar cada error junto a su campo.
 
-## Antes de entregar
+## Decisiones
 
-Reemplaza este archivo por tu propio `README.md`, con cómo se corre tu proyecto, qué decisiones tomaste, qué dejaste afuera y qué harías con más tiempo.
+- **Persistencia en memoria:** cabe en el tiempo de la prueba y la interfaz del repositorio
+  permite cambiarla por una base de datos sin tocar dominio ni casos de uso. Contra: los
+  datos se pierden al reiniciar.
+- **Naturaleza:** se pide solo al crear una clase (1 dígito); los demás niveles la heredan.
+  El enunciado no dice cómo se asigna, así que lo resolví así.
+- **Frontend por funcionalidad:** `api/` (cliente HTTP), `features/accounts/` (componentes,
+  hooks, tipos). Cada pieza tiene un solo trabajo y se ve de un vistazo dónde vive cada cosa.
+- **Tailwind:** estilos rápidos sin curva de aprendizaje; no justificaba una librería de
+  componentes para un árbol y un formulario.
+- **TanStack Query:** resuelve carga, error e invalidación del árbol tras crear o eliminar,
+  sin `useEffect` manuales.
+- **Opcionales elegidos:** nivel y naturaleza (casi gratis y aclara la jerarquía) y crear
+  hija con código prellenado (reutiliza el formulario y reduce errores de tipeo).
+
+## Qué dejé afuera
+
+- Tests automatizados.
+- Búsqueda y renombrar.
+- Validación de DTO con `class-validator` en el controller (la validación vive en el dominio).
+- Persistencia real.
+
+## Qué haría con más tiempo
+
+- Tests unitarios del dominio y de los casos de uso (con el repositorio en memoria).
+- Repositorio con base de datos real implementando la misma interfaz.
+- Búsqueda abriendo las ramas con coincidencia.
+- Abrir automáticamente el nodo padre al crear una hija.
+- Impedir cambios concurrentes inconsistentes (por ejemplo, borrar un padre mientras se crea una hija).
